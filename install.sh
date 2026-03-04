@@ -52,7 +52,40 @@ if [ -d "$SCRIPT_DIR/contexts" ]; then
     echo "[+] contexts/ installed ($(ls "$SCRIPT_DIR/contexts"/*.md 2>/dev/null | wc -l | tr -d ' ') files)"
 fi
 
-# 4. Summary
+# 4. Install plugin via marketplace
+# 插件安装失败不应中断整个安装流程
+set +e
+echo ""
+echo "Installing plugin..."
+if command -v claude &>/dev/null; then
+    # 添加本地 marketplace（如果尚未添加）
+    if claude plugin marketplace list 2>/dev/null | grep -q "aiyucc-marketplace"; then
+        echo "[=] marketplace 'aiyucc-marketplace' already registered"
+    else
+        claude plugin marketplace add "$SCRIPT_DIR" 2>/dev/null \
+            && echo "[+] marketplace 'aiyucc-marketplace' registered" \
+            || echo "[!] marketplace registration failed"
+    fi
+
+    # 安装插件（如果尚未安装）
+    if claude plugin list 2>/dev/null | grep -q "aiyucc@aiyucc-marketplace"; then
+        echo "[=] plugin 'aiyucc' already installed, updating..."
+        claude plugin update aiyucc@aiyucc-marketplace 2>/dev/null \
+            && echo "[+] plugin 'aiyucc' updated" \
+            || echo "[!] plugin update failed"
+    else
+        claude plugin install aiyucc@aiyucc-marketplace 2>/dev/null \
+            && echo "[+] plugin 'aiyucc' installed" \
+            || echo "[!] plugin installation failed"
+    fi
+else
+    echo "[-] claude command not found, skip plugin installation"
+    echo "    Install Claude Code first, then run:"
+    echo "    claude plugin marketplace add $SCRIPT_DIR"
+    echo "    claude plugin install aiyucc@aiyucc-marketplace"
+fi
+
+# 5. Summary
 echo ""
 echo "Installation complete!"
 echo ""
@@ -63,14 +96,11 @@ echo "  - rules/python/      (Python rules, path-scoped)"
 echo "  - rules/typescript/  (TypeScript rules, path-scoped)"
 echo "  - contexts/          (system prompt modes)"
 echo ""
-echo "Auto-loaded by plugin:"
-echo "  - agents/   (11 agents)"
+echo "Plugin (via marketplace):"
+echo "  - agents/    (11 agents)"
 echo "  - commands/  (slash commands)"
-echo "  - skills/   (11 skills)"
-echo "  - hooks/    (5 hooks)"
-echo ""
-echo "To install the plugin itself:"
-echo "  claude plugin install $SCRIPT_DIR"
+echo "  - skills/    (11 skills)"
+echo "  - hooks/     (5 hooks)"
 echo ""
 echo "To use context modes:"
 echo '  claude --system-prompt "$(cat ~/.claude/contexts/dev.md)"'

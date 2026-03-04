@@ -1,0 +1,17 @@
+{
+    "name": "aiyucc-marketplace",
+    "owner": {
+        "name": "yuhaifeng"
+    },
+    "plugins": [
+        {
+            "name": "aiyucc",
+            "source": {
+                "source": "github",
+                "repo": "int-32/AiyuCC"
+            },
+            "description": "AiyuCC - Python + TypeScript 全栈开发规范",
+            "version": "1.0.0"
+        }
+    ]
+}
