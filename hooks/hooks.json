@@ -1,0 +1,62 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const a=process.env.TOOL_INPUT||'{}';try{const i=JSON.parse(a);if(i.command&&/git\\s+push/.test(i.command)){process.stdout.write('\\n[提醒] 即将执行 git push，请确认已审查所有变更。\\n');}}catch(e){}\""
+          }
+        ],
+        "description": "git push 前提醒审查变更"
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const a=process.env.TOOL_INPUT||'{}';try{const i=JSON.parse(a);const p=i.file_path||'';if(/\\.(md|txt)$/i.test(p)&&!/README|CLAUDE|AGENTS|CONTRIBUTING|CHANGELOG/i.test(p)&&!p.includes('.claude/plans/')&&!p.includes('.claude/rules/')&&!p.includes('.claude/commands/')&&!p.includes('.claude/skills/')&&!p.includes('.claude/contexts/')&&!p.includes('.claude/agents/')){process.stderr.write('阻止创建多余的文档文件: '+p+'\\n请仅在必要时创建文档。');process.exit(2);}}catch(e){}\""
+          }
+        ],
+        "description": "阻止创建多余的 .md/.txt 文件"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'FILE=$(echo \"$TOOL_INPUT\" | node -e \"try{const i=JSON.parse(require(\\\"fs\\\").readFileSync(\\\"/dev/stdin\\\",\\\"utf8\\\"));console.log(i.file_path||\\\"\\\")}catch(e){}\"); if [[ \"$FILE\" == *.py ]] && command -v ruff &>/dev/null; then ruff format --quiet \"$FILE\" 2>/dev/null && ruff check --fix --quiet \"$FILE\" 2>/dev/null; fi'"
+          }
+        ],
+        "description": "编辑 Python 文件后自动 ruff format + check"
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'FILE=$(echo \"$TOOL_INPUT\" | node -e \"try{const i=JSON.parse(require(\\\"fs\\\").readFileSync(\\\"/dev/stdin\\\",\\\"utf8\\\"));console.log(i.file_path||\\\"\\\")}catch(e){}\"); if [[ \"$FILE\" == *.ts || \"$FILE\" == *.tsx ]] && command -v bun &>/dev/null; then cd \"$(dirname \"$FILE\")\" && bun tsc --noEmit --pretty 2>&1 | head -20; fi'",
+            "async": true
+          }
+        ],
+        "description": "编辑 TypeScript 文件后异步类型检查"
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'if command -v git &>/dev/null && git rev-parse --is-inside-work-tree &>/dev/null 2>&1; then DIFF=$(git diff --cached --diff-filter=ACM --name-only 2>/dev/null; git diff --diff-filter=ACM --name-only 2>/dev/null); if [ -n \"$DIFF\" ]; then for f in $DIFF; do if [[ \"$f\" == *.py ]]; then grep -n \"\\bprint(\" \"$f\" 2>/dev/null | grep -v \"#.*noqa\" | head -3 | while read line; do echo \"[警告] $f:$line — print() 调试语句\"; done; elif [[ \"$f\" == *.ts || \"$f\" == *.tsx || \"$f\" == *.js || \"$f\" == *.jsx ]]; then grep -n \"console\\.log\" \"$f\" 2>/dev/null | head -3 | while read line; do echo \"[警告] $f:$line — console.log 调试语句\"; done; fi; done; fi; fi'",
+            "async": true
+          }
+        ],
+        "description": "检查已修改文件中的调试语句残留"
+      }
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "aiyucc",
+  "version": "1.0.0",
+  "description": "AiyuCC - Python + TypeScript 全栈开发规范。FastAPI/SQLModel/React/Next.js，含 MCP 和 A2A 协议开发支持。",
+  "author": {
+    "name": "yuhaifeng"
+  },
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "python",
+    "typescript",
+    "fastapi",
+    "sqlmodel",
+    "mcp",
+    "a2a",
+    "tdd"
+  ],
+  "agents": [
+    "./agents/planner.md",
+    "./agents/architect.md",
+    "./agents/code-reviewer.md",
+    "./agents/python-reviewer.md",
+    "./agents/security-reviewer.md",
+    "./agents/build-error-resolver.md",
+    "./agents/database-reviewer.md",
+    "./agents/tdd-guide.md",
+    "./agents/refactor-cleaner.md",
+    "./agents/mcp-developer.md",
+    "./agents/a2a-developer.md"
+  ],
+  "skills": [
+    "./skills/",
+    "./commands/"
+  ]
+}
