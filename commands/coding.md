@@ -34,21 +34,23 @@ $ARGUMENTS
 
 对每个未完成任务，执行以下循环:
 
-#### a. 编码 (Code)
-- 读取任务描述中的模块、文件路径、操作说明
-- 阅读相关代码，理解上下文
-- 按照计划描述实现代码
-- 遵循 TDD: 如果任务涉及新功能，先写测试再写实现
+#### a. 编码 + 测试 (Code + Test — TDD)
 
-#### b. 测试 (Test)
+使用 `/tdd` 命令的 TDD 工作流，对每个任务执行严格的 **RED → GREEN → REFACTOR** 循环:
 
-根据任务涉及的文件类型，选择对应的测试策略:
+1. **理解需求** — 读取任务描述中的模块、文件路径、操作说明，阅读相关代码理解上下文
+2. **RED** — 根据任务要求，先写一个失败的测试
+3. **运行测试** — 确认测试失败（且失败原因正确）
+4. **GREEN** — 写最少代码让测试通过
+5. **运行测试** — 确认通过
+6. **REFACTOR** — 在测试保护下重构代码
+7. **重复** — 如果任务需要多个测试用例，继续下一轮 RED-GREEN-REFACTOR
 
-**单元/集成测试**（所有任务必须）:
+**测试工具**:
 - Python: `uv run pytest <test_file> -v`
 - TypeScript: `bun test <test_file>` / `bunx vitest run <test_file>`
 
-**前端视觉测试**（涉及 UI 组件时额外执行）:
+**前端视觉验证**（涉及 UI 组件时额外执行）:
 - 判断条件: 任务文件路径匹配 `**/components/**`, `**/pages/**`, `**/app/**`, `**/*.tsx`
 - 启动 dev server（使用 preview_start 工具）
 - 用 preview_screenshot 截图检查页面渲染
@@ -57,22 +59,17 @@ $ARGUMENTS
 - 检查 preview_console_logs 确认无运行时错误
 - 检查 preview_network（filter: failed）确认无失败请求
 
-**E2E 测试**（涉及完整用户流程时额外执行）:
-- 判断条件: 任务描述中包含"流程"、"页面跳转"、"表单提交"等关键词
-- 使用 preview 工具模拟用户操作: preview_click, preview_fill
-- 验证操作后的页面状态变化
-
-测试失败处理:
+**测试失败处理**:
 - 分析失败原因
-- 修复代码
+- 修复代码（回到 GREEN 步骤）
 - 重新测试（最多 3 次）
 - 如果 3 次后仍失败，**暂停并询问用户**
 
-#### c. 质量检查 (Lint)
+#### b. 质量检查 (Lint)
 - Python: `uv run ruff check --fix <file> && uv run ruff format <file>`
 - TypeScript: `bunx biome check --fix <file>`
 
-#### d. 提交 (Commit)
+#### c. 提交 (Commit)
 - `git add <修改的文件>`
 - 生成 Conventional Commit 消息:
   - 类型根据任务自动判断 (feat/fix/refactor/test)
@@ -80,7 +77,7 @@ $ARGUMENTS
   - 描述使用任务摘要
 - `git commit` (不加 --no-verify，让 hooks 运行)
 
-#### e. 更新状态 (Update)
+#### d. 更新状态 (Update)
 - TodoWrite: 标记当前任务为 completed
 - 计划文件: `- [ ]` → `- [x]`（用 Edit 工具更新）
 - 下一个任务标记为 in_progress
