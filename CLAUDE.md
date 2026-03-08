@@ -57,6 +57,7 @@
 | refactor-cleaner | sonnet | 死代码检测、依赖清理 |
 | mcp-developer | sonnet | MCP 服务器/客户端开发专家 |
 | a2a-developer | sonnet | A2A 协议开发专家 |
+| discuss-facilitator | opus | 需求讨论引导（反问机制 + 开源调研） |
 
 ## 个人偏好
 
@@ -111,6 +112,7 @@
 | `/python-review` | Python 专项审查 |
 | `/api-design` | REST API 设计评审 |
 | `/update-docs` | 文档同步更新 |
+| `/discuss` | 需求讨论: 确认背景、目标、IO 示例，调研开源项目 |
 
 ## 成功标准
 
